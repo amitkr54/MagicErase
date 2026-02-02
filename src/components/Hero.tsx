@@ -8,9 +8,17 @@ import { useRouter } from "next/navigation";
 interface HeroProps {
     selectedImage: File | string | null;
     onImageSelect: (image: File | string | null) => void;
+    title?: React.ReactNode;
+    subtitle?: string;
+    ctaText?: string;
 }
 
-export function Hero({ onImageSelect }: HeroProps) {
+export function Hero({
+    onImageSelect,
+    title = <>Remove <span className="text-gradient">Backgrounds</span> in Seconds.</>,
+    subtitle = "High-quality background removal that runs entirely in your browser. No cloud uploads, 100% private, and completely free.",
+    ctaText = "Upload Image"
+}: HeroProps) {
     const router = useRouter();
 
     const handleTrySample = () => {
@@ -30,11 +38,10 @@ export function Hero({ onImageSelect }: HeroProps) {
                         <span>AI-Powered Magic</span>
                     </div>
                     <h1 className="text-6xl md:text-7xl font-bold leading-tight mb-6">
-                        Remove <span className="text-gradient">Backgrounds</span> in Seconds.
+                        {title}
                     </h1>
                     <p className="text-xl text-white/60 mb-10 leading-relaxed max-w-lg">
-                        High-quality background removal that runs entirely in your browser.
-                        No cloud uploads, 100% private, and completely free.
+                        {subtitle}
                     </p>
 
                     <div className="flex flex-wrap gap-4">
@@ -43,7 +50,7 @@ export function Hero({ onImageSelect }: HeroProps) {
                             className="btn-primary flex items-center gap-2 group"
                         >
                             <Upload className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
-                            Upload Image
+                            {ctaText}
                         </button>
                         <button
                             onClick={handleTrySample}
