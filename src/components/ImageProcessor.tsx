@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Download, RefreshCw, X, Check, Loader2, Maximize2 } from "lucide-react";
+import { Download, RefreshCw, X, Check, Loader2, Maximize2, Palette, Image as ImageIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { removeBackground, Config } from "@imgly/background-removal";
 import { cn } from "@/lib/utils";
@@ -57,6 +57,31 @@ export function ImageProcessor({ image, onReset }: ImageProcessorProps) {
     const [progress, setProgress] = useState(0);
     const [sliderPosition, setSliderPosition] = useState(50);
     const [error, setError] = useState<string | null>(null);
+    const [activeBackground, setActiveBackground] = useState<{
+        type: "transparent" | "color" | "gradient" | "image";
+        value: string;
+    }>({ type: "transparent", value: "transparent" });
+
+    const backgrounds = {
+        colors: [
+            { name: "White", value: "#ffffff" },
+            { name: "Black", value: "#000000" },
+            { name: "Soft Blue", value: "#e0f2fe" },
+            { name: "Rose", value: "#fff1f2" },
+            { name: "Emerald", value: "#ecfdf5" },
+        ],
+        gradients: [
+            { name: "Sunset", value: "linear-gradient(to right, #ff5f6d, #ffc371)" },
+            { name: "Ocean", value: "linear-gradient(to right, #2193b0, #6dd5ed)" },
+            { name: "Midnight", value: "linear-gradient(to bottom, #232526, #414345)" },
+            { name: "Purple", value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
+        ],
+        images: [
+            { name: "Studio", value: "https://images.unsplash.com/photo-1621839673705-68b7eda1f72d?auto=format&fit=crop&q=80&w=2000" },
+            { name: "Office", value: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000" },
+            { name: "Loft", value: "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&q=80&w=2000" },
+        ]
+    };
 
     useEffect(() => {
         // Create an absolute URL for displaying the original image
@@ -159,12 +184,22 @@ export function ImageProcessor({ image, onReset }: ImageProcessorProps) {
                         onMouseMove={handleMouseMove}
                         onTouchMove={handleMouseMove}
                     >
-                        {/* Checkerboard background for processed image */}
-                        <div className="absolute inset-0 opacity-10" style={{
-                            backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
-                            backgroundSize: '20px 20px',
-                            backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-                        }} />
+                        {/* Background Layer */}
+                        <div className="absolute inset-0 transition-all duration-500" style={{
+                            background: activeBackground.type === "color" || activeBackground.type === "gradient"
+                                ? activeBackground.value
+                                : activeBackground.type === "image"
+                                    ? `url(${activeBackground.value}) center/cover no-repeat`
+                                    : "transparent"
+                        }}>
+                            {activeBackground.type === "transparent" && (
+                                <div className="absolute inset-0 opacity-10" style={{
+                                    backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                                    backgroundSize: '20px 20px',
+                                    backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+                                }} />
+                            )}
+                        </div>
 
                         <img
                             src={originalUrl}
@@ -244,6 +279,64 @@ export function ImageProcessor({ image, onReset }: ImageProcessorProps) {
                                 </button>
                             </div>
                         )}
+                    </div>
+
+                    {/* Background Selector UI */}
+                    <div className="mt-6 flex flex-col gap-4">
+                        <div className="flex items-center gap-2 text-sm font-bold text-white/40 uppercase tracking-widest">
+                            <Palette className="w-4 h-4" />
+                            Background Gallery
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={() => setActiveBackground({ type: "transparent", value: "transparent" })}
+                                className={cn(
+                                    "w-10 h-10 rounded-xl border-2 transition-all",
+                                    activeBackground.type === "transparent" ? "border-brand-primary scale-110" : "border-white/10 hover:border-white/20"
+                                )}
+                                style={{ backgroundImage: 'linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%)', backgroundSize: '10px 10px' }}
+                                title="Transparent"
+                            />
+                            {backgrounds.colors.map((color) => (
+                                <button
+                                    key={color.name}
+                                    onClick={() => setActiveBackground({ type: "color", value: color.value })}
+                                    className={cn(
+                                        "w-10 h-10 rounded-xl border-2 transition-all",
+                                        activeBackground.type === "color" && activeBackground.value === color.value ? "border-brand-primary scale-110" : "border-white/10 hover:border-white/20"
+                                    )}
+                                    style={{ backgroundColor: color.value }}
+                                    title={color.name}
+                                />
+                            ))}
+                            <div className="w-px h-8 bg-white/10 mx-1" />
+                            {backgrounds.gradients.map((grad) => (
+                                <button
+                                    key={grad.name}
+                                    onClick={() => setActiveBackground({ type: "gradient", value: grad.value })}
+                                    className={cn(
+                                        "w-10 h-10 rounded-xl border-2 transition-all",
+                                        activeBackground.type === "gradient" && activeBackground.value === grad.value ? "border-brand-primary scale-110" : "border-white/10 hover:border-white/20"
+                                    )}
+                                    style={{ background: grad.value }}
+                                    title={grad.name}
+                                />
+                            ))}
+                            <div className="w-px h-8 bg-white/10 mx-1" />
+                            {backgrounds.images.map((img) => (
+                                <button
+                                    key={img.name}
+                                    onClick={() => setActiveBackground({ type: "image", value: img.value })}
+                                    className={cn(
+                                        "w-10 h-10 rounded-xl border-2 overflow-hidden transition-all",
+                                        activeBackground.type === "image" && activeBackground.value === img.value ? "border-brand-primary scale-110" : "border-white/10 hover:border-white/20"
+                                    )}
+                                    title={img.name}
+                                >
+                                    <img src={img.value} className="w-full h-full object-cover" alt={img.name} />
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
