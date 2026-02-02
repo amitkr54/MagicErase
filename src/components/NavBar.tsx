@@ -57,6 +57,12 @@ export function NavBar({ onImageSelect, onGetStarted, onNotify }: NavBarProps) {
 
                 <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
                     <Link
+                        href="/passport-photo"
+                        className="hover:text-white transition-colors text-emerald-400"
+                    >
+                        Passport Photo
+                    </Link>
+                    <Link
                         href="/#how-it-works"
                         onClick={(e) => scrollToSection(e, "how-it-works")}
                         className="hover:text-white transition-colors"
