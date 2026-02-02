@@ -63,6 +63,12 @@ export function NavBar({ onImageSelect, onGetStarted, onNotify }: NavBarProps) {
                         Passport Photo
                     </Link>
                     <Link
+                        href="/product-photography"
+                        className="hover:text-white transition-colors text-emerald-400"
+                    >
+                        Product Photo
+                    </Link>
+                    <Link
                         href="/#how-it-works"
                         onClick={(e) => scrollToSection(e, "how-it-works")}
                         className="hover:text-white transition-colors"
